@@ -1,0 +1,27 @@
+name: linux test
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  attestations: write
+  contents: read
+  id-token: write
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo pacman -Syu --noconfirm
+          sudo pacman -S --noconfirm git meson vapoursynth vulkan-headers libplacebo
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build vs-placebo
+        run: |
+          meson setup build --buildtype release
+          meson compile -vC build
+          ls -la build
